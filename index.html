@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Execution Rules: SMC/ICT Trade Gate</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f4;--surface:#fff;--ink:#14212b;--mute:#5b6b78;--line:#d3dbe2;--go:#0f7b6c;--stop:#c23b22;--warn:#b9770e;--accent:#1d4e89;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e161d;--surface:#16212b;--ink:#e6edf2;--mute:#93a3b0;--line:#27363f;--go:#3fc1ac;--stop:#ef7a62;--warn:#e3a24a;--accent:#7fb0ea;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e161d;--surface:#16212b;--ink:#e6edf2;--mute:#93a3b0;--line:#27363f;--go:#3fc1ac;--stop:#ef7a62;--warn:#e3a24a;--accent:#7fb0ea;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 96px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Instrument Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.15;margin:0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:3px solid var(--stop);transition:border-color .25s}
+.bar.go{border-color:var(--go)}.bar.warn{border-color:var(--warn)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:30}
+.bar-in{max-width:880px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.verdict{font:800 clamp(1.4rem,5vw,2rem)/1 "Bricolage Grotesque",sans-serif;color:var(--stop)}
+.bar.go .verdict{color:var(--go)}.bar.warn .verdict{color:var(--warn)}
+.why{flex:1;min-width:180px;color:var(--mute);font-size:.9rem}
+.btn{font:600 .9rem "Instrument Sans",sans-serif;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+main{max-width:880px;margin:auto;padding:28px 18px 70px}
+.intro h1{font-size:clamp(2rem,7vw,3.2rem);font-weight:800}
+.intro p{color:var(--mute);max-width:60ch;margin:12px 0 0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 6px}
+nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:.9rem;border:1px solid var(--line);padding:6px 11px;border-radius:99px;background:var(--surface)}
+section{margin-top:38px}
+section>h2{font-size:1.6rem;display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.count{font:600 .85rem "Instrument Sans";color:var(--mute)}
+.sub{color:var(--mute);margin:10px 0 4px;font-size:.95rem}
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.item input{width:22px;height:22px;margin-top:2px;accent-color:var(--go);flex:none}
+.item.done span{color:var(--mute)}
+.item small{display:block;color:var(--mute);font-size:.82rem}
+.rate{padding:12px 4px;border-bottom:1px solid var(--line)}
+.rate p{margin:0 0 8px}
+.pills{display:flex;gap:6px}
+.pills button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem "Instrument Sans";cursor:pointer}
+.pills button.on{background:var(--go);border-color:var(--go);color:#fff}
+.pills button.on.low{background:var(--stop);border-color:var(--stop)}
+.pills button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.brk .item input{accent-color:var(--stop)}
+.brk .item.done span{color:var(--stop);font-weight:600}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--mute);font-weight:500}
+label.f.w{grid-column:1/-1}
+input[type=text],input[type=number],select,textarea{font:1rem "Instrument Sans",sans-serif;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+textarea{min-height:60px;resize:vertical}
+.tw{overflow-x:auto;margin-top:18px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.88rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600}
+.tag{font-weight:600}.t-gw,.t-gl{color:var(--go)}.t-bl{color:var(--warn)}.t-bw{color:var(--stop)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.m{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.m b{display:block;font:800 1.7rem "Bricolage Grotesque";}
+.m span{color:var(--mute);font-size:.85rem}
+.note{margin-top:22px;padding:14px 16px;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0}
+.empty{color:var(--mute);padding:14px 0}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#syncStatus{min-height:1.5em}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"><div class="bar-in">
+<div class="verdict" id="verdict">No trade</div>
+<div class="why" id="why"></div>
+<button class="btn pri" id="newTrade">New trade</button>
+</div></div>
+
+<main>
+<div class="intro">
+<h1>Run the gate before every entry.</h1>
+<p>A checklist for SMC/ICT execution on XAUUSD and US30. If any gate fails, you skip the trade. Judge yourself on process adherence, not profit.</p>
+</div>
+<nav>
+<a href="#edge">Edge</a><a href="#risk">Risk</a><a href="#psych">Psychology</a><a href="#intrade">In-trade</a><a href="#breakers">Circuit breakers</a><a href="#review">Post-trade</a><a href="#weekly">Weekly</a><a href="#sync">GitHub sync</a>
+</nav>
+
+<section id="edge"><h2>Pre-trade: edge check <span class="count" id="c-edge"></span></h2><p class="sub">All must be yes.</p><div id="l-edge"></div></section>
+<section id="risk"><h2>Pre-trade: risk check <span class="count" id="c-risk"></span></h2><p class="sub">All must be yes.</p><div id="l-risk"></div></section>
+<section id="psych"><h2>Pre-trade: psychology check <span class="count" id="c-psych"></span></h2><p class="sub">Rate 1 to 5. A score of 2 or below means no trade.</p><div id="l-psych"></div></section>
+<section id="intrade"><h2>In-trade rules <span class="count" id="c-intrade"></span></h2><p class="sub">Tick each one as a commitment before you click buy or sell.</p><div id="l-intrade"></div></section>
+<section id="breakers"><h2>Hard circuit breakers</h2><p class="sub">Tick any that has happened. A tripped breaker overrides everything above.</p><div class="brk" id="l-breakers"></div></section>
+
+<section id="review"><h2>Post-trade review</h2>
+<p class="sub">Log every trade. Score execution separately from P&amp;L.</p>
+<div class="form">
+<label class="f">Pair<select id="f-pair"><option>XAUUSD</option><option>US30</option><option>Other</option></select></label>
+<label class="f">Session<select id="f-sess"><option>London</option><option>New York</option><option>Outside kill zone</option></select></label>
+<label class="f">Result<select id="f-res"><option value="win">Win</option><option value="loss">Loss</option><option value="be">Break-even</option></select></label>
+<label class="f">Result in R (e.g. 2 or -1)<input type="number" step="0.1" id="f-r" value="0"></label>
+<label class="f">Rule adherence % (0 to 100)<input type="number" min="0" max="100" id="f-adh" value="100"></label>
+<label class="f">Emotion at entry / during / exit<input type="text" id="f-emo" placeholder="calm, anxious, relieved"></label>
+<label class="f w">Repeat this<textarea id="f-rep"></textarea></label>
+<label class="f w">Fix this<textarea id="f-fix"></textarea></label>
+</div>
+<p class="sub">Also: screenshot entry, exit and HTF context in your journal.</p>
+<button class="btn pri" id="addLog">Save trade</button>
+<div class="tw" id="logWrap"></div>
+</section>
+
+<section id="weekly"><h2>Weekly metrics <span class="count">last 7 days</span></h2>
+<div class="metrics" id="metrics"></div>
+<div class="note"><b>Adherence over profit.</b> A week with 95% adherence and a loss is a good week. A profitable week with broken rules is a warning. The dangerous outcome is the bad trade that wins, so it is flagged in red.</div>
+</section>
+
+<section id="sync"><h2>GitHub sync</h2>
+<p class="sub">Each saved trade, with a snapshot of your checklist at that moment, is committed to a JSON file in your private data repo. These settings stay on this device.</p>
+<div class="form">
+<label class="f">GitHub username<input type="text" id="g-owner" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+<label class="f">Data repo (private)<input type="text" id="g-repo" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+<label class="f">Branch<input type="text" id="g-branch" value="main" autocapitalize="off"></label>
+<label class="f">File path<input type="text" id="g-path" value="trades.json" autocapitalize="off"></label>
+<label class="f w">Access token<input type="password" id="g-token" autocomplete="off"></label>
+</div>
+<div class="acts"><button class="btn pri" id="saveCfg">Save and test</button><button class="btn" id="syncNow">Sync now</button><button class="btn" id="clrTok">Remove token</button></div>
+<p class="sub" id="syncStatus" role="status"></p>
+<div class="note">Use a fine-grained token limited to your data repo only, with Contents set to read and write. Trades that fail to sync stay marked Pending and retry on the next save or page load. Deleting a trade here does not remove it from GitHub.</div>
+</section>
+</main>
+
+<script>
+(function(){
+var DATA={
+edge:[
+["Is HTF bias (D1/H4) clear, and am I trading with it?"],
+["Has liquidity been taken?","Sweep of a high or low, equal highs/lows, session high/low."],
+["Is there displacement or a market structure shift confirming the move?"],
+["Is my entry at a valid POI in the correct premium/discount zone?","OB, FVG or breaker."],
+["Am I inside my kill zone?","London or New York open."],
+["Is there at least 1:2 RR to a clear liquidity target?"],
+["Is high-impact news absent for the window?","NFP, CPI, FOMC. Critical for XAUUSD and US30."],
+["Can I state the setup in one sentence?","If not, there is no setup."]],
+risk:[
+["Risk is a fixed % per trade (0.5 to 1%), never adjusted to win it back."],
+["Stop sits at a structural invalidation point, not a number I can tolerate."],
+["Lot size is calculated from stop distance, not guessed."],
+["Daily loss limit and max drawdown are safe if this trade loses.","Especially on a prop challenge."],
+["Total open risk across correlated trades is within my cap.","Gold and indices can move together on USD or risk events."],
+["Max trades per day is not exceeded.","Suggested limit: 2."]],
+psych:[
+["Am I calm, rested and unhurried?"],
+["Am I trading because of a setup, not boredom, FOMO or revenge?"],
+["Is my last trade (win or loss) not changing how I feel about this one?"],
+["Would I take this exact trade if my last 3 trades had gone the opposite way?"]],
+intrade:[
+["Never widen the stop. It only moves to break-even or profit by a pre-defined rule."],
+["No adding to losers."],
+["Partial and break-even rules were decided before entry, not now."],
+["No screen-staring: set alerts and walk away."],
+["No manual early exit unless the thesis is invalidated (structure broke), not because of discomfort."]],
+breakers:[
+["2 losses in a row: stop for the session."],
+["Daily loss limit hit: done for the day, no exceptions."],
+["Weekly loss limit hit: reduce size or sit out until the weekly review."],
+["I broke a rule: no more trades until the next session."]]
+};
+var S={edge:{},risk:{},psych:{},intrade:{},breakers:{}},LOG=[];
+function load(){try{var a=localStorage.getItem("tg_state"),b=localStorage.getItem("tg_log");if(a)S=Object.assign(S,JSON.parse(a));if(b)LOG=JSON.parse(b)||[]}catch(e){}}
+function save(){try{localStorage.setItem("tg_state",JSON.stringify(S));localStorage.setItem("tg_log",JSON.stringify(LOG))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function renderChecks(k){
+var h="";DATA[k].forEach(function(it,i){var on=!!S[k][i];
+h+='<label class="item'+(on?' done':'')+'"><input type="checkbox" data-k="'+k+'" data-i="'+i+'"'+(on?' checked':'')+'><span>'+esc(it[0])+(it[1]?'<small>'+esc(it[1])+'</small>':'')+'</span></label>'});
+$("l-"+k).innerHTML=h}
+function renderRates(){
+var h="";DATA.psych.forEach(function(it,i){var v=S.psych[i]||0;
+h+='<div class="rate"><p>'+esc(it[0])+'</p><div class="pills" role="group" aria-label="Rating 1 to 5">';
+for(var n=1;n<=5;n++)h+='<button data-i="'+i+'" data-n="'+n+'" class="'+(v===n?'on'+(n<=2?' low':''):'')+'" aria-pressed="'+(v===n)+'">'+n+'</button>';
+h+='</div></div>'});
+$("l-psych").innerHTML=h}
+function cnt(k){var n=0;DATA[k].forEach(function(_,i){if(S[k][i])n++});return n}
+function update(){
+var e=cnt("edge"),r=cnt("risk"),ps=0,low=0,tripped=cnt("breakers");
+DATA.psych.forEach(function(_,i){var v=S.psych[i]||0;if(v)ps++;if(v&&v<=2)low++});
+$("c-edge").textContent=e+" of "+DATA.edge.length;
+$("c-risk").textContent=r+" of "+DATA.risk.length;
+$("c-psych").textContent=ps+" of "+DATA.psych.length+" rated";
+$("c-intrade").textContent=cnt("intrade")+" of "+DATA.intrade.length;
+var bar=$("bar"),v=$("verdict"),w=$("why"),cls="",t,why;
+if(tripped){t="Stop trading";why="Circuit breaker tripped. No more entries this session.";}
+else if(low){t="No trade";why="Psychology score is 2 or below on "+low+" item"+(low>1?"s":"")+". Step away.";}
+else{var miss=[];if(e<DATA.edge.length)miss.push((DATA.edge.length-e)+" edge");if(r<DATA.risk.length)miss.push((DATA.risk.length-r)+" risk");if(ps<DATA.psych.length)miss.push((DATA.psych.length-ps)+" psychology");
+if(miss.length){t=(e+r+ps)?"Not yet":"No trade";cls=(e+r+ps)?"warn":"";why="Still open: "+miss.join(", ")+".";}
+else{t="Cleared to trade";cls="go";why="All gates passed. Confirm the in-trade rules, then execute.";}}
+bar.className="bar "+cls;v.textContent=t;w.textContent=why;
+document.querySelectorAll(".item").forEach(function(el){var c=el.querySelector("input");el.classList.toggle("done",c.checked)});
+save()}
+
+function klass(l){var good=l.adh>=90,win=l.res==="win";return good?(win?"gw":"gl"):(win?"bw":"bl")}
+var NAMES={gw:"Good trade / win",gl:"Good trade / loss",bw:"Bad trade / win",bl:"Bad trade / loss"};
+function renderLog(){
+if(!LOG.length){$("logWrap").innerHTML='<p class="empty">No trades logged yet. Save your first review above.</p>'}
+else{var h='<table><thead><tr><th>Date</th><th>Pair</th><th>Session</th><th>R</th><th>Adherence</th><th>Class</th><th>Sync</th><th></th></tr></thead><tbody>';
+LOG.slice().reverse().forEach(function(l,ri){var i=LOG.length-1-ri,k=klass(l);
+h+='<tr><td>'+esc(l.d)+'</td><td>'+esc(l.pair)+'</td><td>'+esc(l.sess)+'</td><td>'+l.r+'</td><td>'+l.adh+'%</td><td class="tag t-'+k+'">'+NAMES[k]+'</td><td>'+(l.synced?"Synced":"Pending")+'</td><td><button class="btn" data-del="'+i+'" aria-label="Delete trade">Delete</button></td></tr>'});
+$("logWrap").innerHTML=h+'</tbody></table>'}
+metrics()}
+function metrics(){
+var cut=Date.now()-7*864e5,w=LOG.filter(function(l){return l.ts>=cut});
+var n=w.length,adh=n?Math.round(w.reduce(function(a,l){return a+l.adh},0)/n):0,
+wins=w.filter(function(l){return l.res==="win"}).length,
+avgR=n?(w.reduce(function(a,l){return a+l.r},0)/n).toFixed(2):"0.00",
+off=w.filter(function(l){return l.sess==="Outside kill zone"}).length,
+bw=w.filter(function(l){return klass(l)==="bw"}).length;
+function m(b,s,c){return '<div class="m"><b'+(c?' style="color:var(--'+c+')"':'')+'>'+b+'</b><span>'+s+'</span></div>'}
+$("metrics").innerHTML=m(n,"Trades logged")+m(n?adh+"%":"-","Rule adherence (target 90%+)",n?(adh>=90?"go":"stop"):"")+m(n?Math.round(wins/n*100)+"%":"-","Win rate")+m(avgR+"R","Average result per trade")+m(off,"Outside kill zone",off?"stop":"")+m(bw,"Bad trade / win",bw?"stop":"")}
+
+document.addEventListener("change",function(e){var t=e.target;if(t.matches("input[type=checkbox][data-k]")){S[t.dataset.k][t.dataset.i]=t.checked;update()}});
+document.addEventListener("click",function(e){
+var b=e.target.closest("button");if(!b)return;
+if(b.dataset.n){var i=b.dataset.i,n=+b.dataset.n;S.psych[i]=(S.psych[i]===n)?0:n;renderRates();update()}
+else if(b.dataset.del!==undefined){LOG.splice(+b.dataset.del,1);save();renderLog()}});
+$("newTrade").onclick=function(){["edge","risk","psych","intrade"].forEach(function(k){S[k]={}});["edge","risk","intrade"].forEach(renderChecks);renderRates();update();window.scrollTo({top:0})};
+$("addLog").onclick=function(){
+var adh=Math.max(0,Math.min(100,parseFloat($("f-adh").value)||0)),r=parseFloat($("f-r").value)||0;
+LOG.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),iso:new Date().toISOString(),gate:snap(),synced:false,ts:Date.now(),d:new Date().toLocaleDateString(undefined,{month:"short",day:"numeric"}),pair:$("f-pair").value,sess:$("f-sess").value,res:$("f-res").value,r:r,adh:adh,emo:$("f-emo").value,rep:$("f-rep").value,fix:$("f-fix").value});
+["f-emo","f-rep","f-fix"].forEach(function(i){$(i).value=""});$("f-r").value=0;$("f-adh").value=100;
+save();renderLog();syncAll()};
+
+var CFG={owner:"",repo:"",branch:"main",path:"trades.json",token:""},busy=false;
+function loadCfg(){try{var c=localStorage.getItem("tg_cfg");if(c)CFG=Object.assign(CFG,JSON.parse(c))}catch(e){}}
+function saveCfg(){try{localStorage.setItem("tg_cfg",JSON.stringify(CFG))}catch(e){}}
+function setStatus(t,bad){var el=$("syncStatus");el.textContent=t;el.style.color=bad?"var(--stop)":"var(--mute)"}
+function snap(){return{verdict:$("verdict").textContent,edge:cnt("edge"),edgeOf:DATA.edge.length,risk:cnt("risk"),riskOf:DATA.risk.length,psych:DATA.psych.map(function(_,i){return S.psych[i]||0}),intrade:cnt("intrade"),breakers:cnt("breakers")}}
+function b64enc(s){var b=new TextEncoder().encode(s),r="";b.forEach(function(x){r+=String.fromCharCode(x)});return btoa(r)}
+function b64dec(s){var r=atob(s.replace(/\n/g,"")),b=new Uint8Array(r.length);for(var i=0;i<r.length;i++)b[i]=r.charCodeAt(i);return new TextDecoder().decode(b)}
+function errMsg(st){return st===401?"Token rejected. Check it has not expired.":st===403?"Token lacks Contents read/write on this repo, or rate limit hit.":st===404?"Repo not found, or the token has no access to it.":st===409||st===422?"Write conflict.":"GitHub returned "+st+"."}
+function gh(method,suffix,body){
+var base="https://api.github.com/repos/"+encodeURIComponent(CFG.owner)+"/"+encodeURIComponent(CFG.repo);
+var url=base+suffix;if(method==="GET")url+=(suffix?"?ref="+encodeURIComponent(CFG.branch)+"&":"?")+"t="+Date.now();
+var h={"Authorization":"Bearer "+CFG.token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
+if(body)h["Content-Type"]="application/json";
+return fetch(url,{method:method,headers:h,body:body?JSON.stringify(body):undefined})}
+function filePath(){return"/contents/"+CFG.path.split("/").map(encodeURIComponent).join("/")}
+function ready(){return CFG.owner&&CFG.repo&&CFG.token}
+async function syncAll(){
+if(busy)return;
+var pend=LOG.filter(function(l){return!l.synced});
+if(!pend.length){if(ready())setStatus("All trades synced.");return}
+if(!ready()){setStatus("Add username, repo and token to sync. "+pend.length+" trade(s) pending.",true);return}
+busy=true;setStatus("Syncing "+pend.length+" trade(s)...");
+try{
+var sha,arr=[],g=await gh("GET",filePath());
+if(g.status===200){var j=await g.json();sha=j.sha;
+try{arr=JSON.parse(b64dec(j.content))}catch(e){throw new Error("The file on GitHub is not valid JSON. Fix or rename it.")}
+if(!Array.isArray(arr))throw new Error("The file on GitHub is not a JSON list.")}
+else if(g.status!==404){throw new Error(errMsg(g.status))}
+var ids={};arr.forEach(function(x){ids[x.id]=1});
+pend.forEach(function(l){if(!ids[l.id]){var c=Object.assign({},l);delete c.synced;arr.push(c)}});
+var body={message:"Log "+pend.length+" trade(s)",content:b64enc(JSON.stringify(arr,null,2)+"\n"),branch:CFG.branch};
+if(sha)body.sha=sha;
+var p=await gh("PUT",filePath(),body);
+if(!p.ok)throw new Error(errMsg(p.status));
+pend.forEach(function(l){l.synced=true});save();renderLog();
+setStatus("Synced "+pend.length+" trade(s) to GitHub.")
+}catch(e){setStatus("Sync failed: "+e.message+" Your trade is saved on this device and will retry.",true)}
+busy=false}
+function readCfg(){CFG.owner=$("g-owner").value.trim();CFG.repo=$("g-repo").value.trim();CFG.branch=$("g-branch").value.trim()||"main";CFG.path=$("g-path").value.trim()||"trades.json";CFG.token=$("g-token").value.trim()}
+$("saveCfg").onclick=async function(){
+readCfg();saveCfg();
+if(!ready()){setStatus("Enter username, repo and token.",true);return}
+setStatus("Testing connection...");
+try{var r=await gh("GET","");
+if(r.status!==200){setStatus("Connection failed: "+errMsg(r.status),true);return}
+var j=await r.json();
+setStatus("Connected to "+j.full_name+(j.private?" (private).":". Warning: this repo is PUBLIC, so your trades would be visible to everyone."),!j.private);
+syncAll()}catch(e){setStatus("Connection failed: "+e.message,true)}};
+$("syncNow").onclick=function(){readCfg();saveCfg();syncAll()};
+$("clrTok").onclick=function(){CFG.token="";$("g-token").value="";saveCfg();setStatus("Token removed from this device.")};
+window.addEventListener("online",function(){syncAll()});
+loadCfg();$("g-owner").value=CFG.owner;$("g-repo").value=CFG.repo;$("g-branch").value=CFG.branch;$("g-path").value=CFG.path;$("g-token").value=CFG.token;
+load();["edge","risk","intrade","breakers"].forEach(renderChecks);renderRates();renderLog();update();syncAll();
+})();
+</script>
+</body>
+</html>
